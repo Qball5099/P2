@@ -170,9 +170,9 @@ int SparseMatrix<DT>::valFromRowCol(int r, int c)
 	for (int i = 0; i < noRows; ++i)
 	{
 		//returns the value if the row and column passed in are the same as the row and column in the matrix
-		if ((r == myMatrix[i].getRow()) && (c == myMatrix[i].getCol()))
+		if ((r == myMatrix->at(i).getRow()) && (c == myMatrix->at(i).getCol()))
 		{
-			return myMatrix[i].getValue();
+			return myMatrix->at(i).getValue();
 		}
 		//returns 0 if not
 		else
@@ -235,7 +235,7 @@ void SparseMatrix<DT>::displayMatrix()
 			else
 			{
 				cout << commonValue;
-			}
+			}			
 
 		}
 		//makes sure the line breaks at the appropriate place in the matrix
@@ -290,7 +290,7 @@ int main() {
 			cin >> v;
 			if (v != cv)
 			{
-				(*firstOne).setSparseRow(ks, i, j, v);
+				(*secondOne).setSparseRow(ks, i, j, v);
 				ks++;
 			}
 		}
