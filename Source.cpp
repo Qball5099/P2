@@ -1,7 +1,7 @@
 //============================================================================
 // Name			: Source.cpp
 // Author		: Quinn Brum
-// Version		: February 22, 2019
+// Version		: February 25, 2019
 // Descpription	: Project 2 in C++
 //============================================================================
 
@@ -124,9 +124,12 @@ public:
 	SparseMatrix(); //Default constructor
 	SparseMatrix(int n, int m, int cv); //constructor
 	virtual ~SparseMatrix(); //destructor
-	void setSparseRow(int pos, int r, int c, DT& v);
+	void setSparseRow(int pos, int r, int c, DT& v); //sets the values of the SpareRow object
 
 	SparseMatrix<DT> operator* (SparseMatrix<DT> M); //for mulitplication and similar for addition and transpose
+	SparseMatrix<DT> operator+ (SparseMatrix<DT> M); //for addition
+	SparseMatrix<DT> operator! (); //for transposition
+	SparseMatrix<DT> operator<< (SparseMatrix<DT> M);
 
 	void display(); //Display the sparse matrix in sparse row form
 	void displayMatrix(); //Display the matrix in its original form
@@ -184,10 +187,71 @@ int SparseMatrix<DT>::valFromRowCol(int r, int c)
 	return 0;
 
 }
+
+//operation multiply class
 template<class DT>
 SparseMatrix<DT> SparseMatrix<DT>::operator*(SparseMatrix<DT> M)
 {
-	return SparseMatrix<DT>();
+	SparseMatrix<DT>* multTemp = new SparseMatrix<DT>();
+
+	/*try
+	{
+
+	}
+	catch (const std::exception& e)
+	{
+
+	}*/
+
+	return multTemp;
+}
+
+//operation add class
+template <class DT>
+SparseMatrix<DT> SparseMatrix<DT>::operator+(SparseMatrix<DT> M)
+{
+	SparseMatrix<DT>* addTemp = new SparseMatrix<DT>();
+
+	/*try
+	{
+
+	}
+	catch (const std::exception&)
+	{
+
+	}*/
+
+	return addTemp;
+}
+
+//operation transpose class
+template <class DT>
+SparseMatrix <DT> SparseMatrix<DT>::operator!()
+{
+	SparseMatrix<DT>* transposeTemp = new SparseMatrix<DT>();
+
+	/*try
+	{
+
+	}
+	catch (const std::exception&)
+	{
+
+	}*/
+	for (int i = 0; i < myMatrix->size(); i++)
+	{
+		((*transposeTemp).myMatrix->at(i)).setRow(myMatrix->at(i).getCol());
+		((*transposeTemp).myMatrix->at(i)).setCol(myMatrix->at(i).getRow());
+		((*transposeTemp).myMatrix->at(i)).setValue(myMatrix->at(i).getValue());
+	}
+
+	return transposeTemp;
+}
+
+template <class DT>
+SparseMatrix<DT> SparseMatrix<DT>::operator<<(SparseMatrix<DT> M)
+{
+	M.display();
 }
 
 //destructor class
@@ -204,7 +268,7 @@ void SparseMatrix<DT>::display()
 	for (int i = 0; i < noRows && i < noCols; i++)
 	{
 		//displays the matrix after getting the repsective (row, column, or value) value
-		cout << this->at(i).display();
+		myMatrix->at(i).display();
 	}
 }
 
@@ -255,11 +319,10 @@ int main() {
 	//k value for secondOne
 	int ks = 0;
 
-	//cout << endl << "First Matrix" << endl;
 	cin >> n >> m >> cv;
 	SparseMatrix<int>* firstOne = new SparseMatrix<int>(n, m, cv);
 
-	//Write the Statements to read in the first matrix
+	//Statements to read in the first matrix
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < m; j++)
@@ -274,7 +337,8 @@ int main() {
 	}
 
 	cout << "First one in sparse matrix format" << endl;
-	cout << firstOne;
+	//cout << firstOne;
+	(*firstOne).display();
 
 	cout << "First one in normal matrix format" << endl;
 	(*firstOne).displayMatrix();
@@ -282,7 +346,7 @@ int main() {
 	cin >> n >> m >> cv;
 	SparseMatrix<int>* secondOne = new SparseMatrix<int>(n, m, cv);
 
-	//Write the statment to read in the first matrix
+	//statment to read in the first matrix
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < m; j++)
@@ -297,7 +361,8 @@ int main() {
 	}
 
 	cout << "Second one in sparse matrix format" << endl;
-	cout << secondOne;
+	//cout << secondOne;
+	(*secondOne).display();
 
 	cout << "Second one in normal matrix format" << endl;
 	(*secondOne).displayMatrix();
