@@ -29,7 +29,7 @@ public:
 	SparseRow(int r, int c, DT& v); //constructor
 	SparseRow(const SparseRow &copy);
 	virtual ~SparseRow(); //destructor
-	void displaySparse(); //print Row#, Column#, value
+	void display(); //print Row#, Column#, value
 
 	int getRow(); //gets the row# for a given value
 	void setRow(int r); //sets the row# for a given value
@@ -117,7 +117,7 @@ SparseRow<DT>::~SparseRow()
 
 //display method for SparseRow
 template <class DT>
-void SparseRow<DT>::displaySparse()
+void SparseRow<DT>::display()
 {
 	cout << row << ", " << col << ", " << value << endl;
 }
@@ -375,7 +375,7 @@ void SparseMatrix<DT>::display()
 	for (int i = 0; i < noRows; i++)
 	{
 		//displays the matrix after getting the repsective (row, column, or value) value
-		(*myMatrix).at(i).displaySparse();
+		(*myMatrix).at(i).display();
 	}
 }
 
@@ -398,7 +398,6 @@ void SparseMatrix<DT>::displayMatrix()
 	}
 
 }
-
 
 int main() 
 {
@@ -429,8 +428,8 @@ int main()
 	}
 
 	cout << "First one in sparse matrix format" << endl;
-	cout << (*firstOne);
-	//(*firstOne).display();
+	//cout << (*firstOne);
+	(*firstOne).display();
 
 	cout << "First one in normal matrix format" << endl;
 	(*firstOne).displayMatrix();
@@ -453,26 +452,26 @@ int main()
 	}
 
 	cout << "Second one in sparse matrix format" << endl;
-	cout << (*secondOne);
-	//(*secondOne).display();
+	//cout << (*secondOne);
+	(*secondOne).display();
 
 	cout << "Second one in normal matrix format" << endl;
 	(*secondOne).displayMatrix();
 
-	//(*temp) = !(*firstOne); //swear this thing hates me
-	//cout << "After Transpose first one in normal format" << endl;
-	//(*temp).displayMatrix();
+	(*temp) = !(*firstOne); //swear this thing hates me
+	cout << "After Transpose first one in normal format" << endl;
+	(*temp).displayMatrix();
 
-	//(*temp) = !(*secondOne);
-	//cout << "After Transpose second one in normal format" << endl;
-	//(*temp).displayMatrix();
+	(*temp) = !(*secondOne);
+	cout << "After Transpose second one in normal format" << endl;
+	(*temp).displayMatrix();
 
 	/*cout << "Multiplication of matrices in sparse matrix form:" << endl;
-	temp = (*secondOne)*(*firstOne);
+	temp = (*secondOne) * (*firstOne);
 	cout << (*temp);
 
 	cout << "Addition of matrices in sparse matrix form:" << endl;
-	temp = (*secondOne)+(*firstOne);
+	temp = (*secondOne) + (*firstOne);
 	cout << (*temp);*/
 
 	return 1;
