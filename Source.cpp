@@ -350,11 +350,11 @@ SparseMatrix <DT> operator! (const SparseMatrix<DT>& M)
 
 	}*/
 
-	for (int i = 0; i < M.noRows; i++)
+	for (int i = 0; i < M.noRows && i < M.noCols; i++)
 	{
-		((*transposed).myMatrix->at(i)).setRow(M.myMatrix->at(i).getCol());
-		((*transposed).myMatrix->at(i)).setCol(M.myMatrix->at(i).getRow());
-		((*transposed).myMatrix->at(i)).setValue(M.myMatrix->at(i).getValue());
+		((*transposed).myMatrix->at(i)).setRow((*M).myMatrix->at(i).getCol());
+		((*transposed).myMatrix->at(i)).setCol((*M).myMatrix->at(i).getRow());
+		((*transposed).myMatrix->at(i)).setValue((*M).myMatrix->at(i).getValue());
 	}
 
 	return (*transposed);
@@ -429,8 +429,8 @@ int main()
 	}
 
 	cout << "First one in sparse matrix format" << endl;
-	//cout << (*firstOne);
-	(*firstOne).display();
+	cout << (*firstOne);
+	//(*firstOne).display();
 
 	cout << "First one in normal matrix format" << endl;
 	(*firstOne).displayMatrix();
@@ -453,19 +453,19 @@ int main()
 	}
 
 	cout << "Second one in sparse matrix format" << endl;
-	//cout << (*secondOne);
-	(*secondOne).display();
+	cout << (*secondOne);
+	//(*secondOne).display();
 
 	cout << "Second one in normal matrix format" << endl;
 	(*secondOne).displayMatrix();
 
-	(*temp) = !(*firstOne); //swear this thing hates me
-	cout << "After Transpose first one in normal format" << endl;
-	(*temp).displayMatrix();
+	//(*temp) = !(*firstOne); //swear this thing hates me
+	//cout << "After Transpose first one in normal format" << endl;
+	//(*temp).displayMatrix();
 
-	(*temp) = !(*secondOne);
-	cout << "After Transpose second one in normal format" << endl;
-	(*temp).displayMatrix();
+	//(*temp) = !(*secondOne);
+	//cout << "After Transpose second one in normal format" << endl;
+	//(*temp).displayMatrix();
 
 	/*cout << "Multiplication of matrices in sparse matrix form:" << endl;
 	temp = (*secondOne)*(*firstOne);
