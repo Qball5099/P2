@@ -26,7 +26,8 @@ protected:
 	DT value; //We will assume that all our values will be integers
 public:
 	SparseRow(); //default constructor; row=-1; col=-1; value=0
-	SparseRow(int r, int c, DT& v);
+	SparseRow(int r, int c, DT& v); //constructor
+	SparseRow(const SparseRow &copy);
 	virtual ~SparseRow(); //destructor
 	void displaySparse(); //print Row#, Column#, value
 
@@ -99,6 +100,15 @@ SparseRow<DT>::SparseRow(int r, int c, DT& v)
 	value = v;
 }
 
+//Copy constructor for the sparseRow class
+template <class DT>
+SparseRow<DT>::SparseRow(const SparseRow &copy)
+{
+	row = copy.row;
+	col = copy.col;
+	value = copy.value;
+}
+
 //destructor
 template <class DT>
 SparseRow<DT>::~SparseRow()
@@ -123,17 +133,20 @@ protected:
 public:
 	SparseMatrix(); //Default constructor
 	SparseMatrix(int n, int m, int cv); //constructor
+	SparseMatrix(const SparseMatrix &copy); //copy constructor
 	virtual ~SparseMatrix(); //destructor
 	void setSparseRow(int pos, int r, int c, DT& v); //sets the values of the SpareRow object
 
-	friend SparseMatrix<DT> operator* (const SparseMatrix<DT>& S, const SparseMatrix<DT>& F); //for mulitplication and similar for addition and transpose
-	friend SparseMatrix<DT> operator+ (const SparseMatrix<DT>& S, const SparseMatrix<DT>& F); //for addition
-	friend SparseMatrix<DT> operator~ (SparseMatrix<DT>& M); //for transposition
-	friend ostream& operator<< (ostream& os, SparseMatrix<DT>& M);
+	friend SparseMatrix<DT> operator* (const SparseMatrix<DT>& M); //for mulitplication and similar for addition and transpose
+	friend SparseMatrix<DT> operator+ (const SparseMatrix<DT>& M); //for addition
+	friend SparseMatrix<DT> operator~ (const SparseMatrix<DT>& M); //for transposition
+	friend ostream& operator<< (ostream& os, SparseMatrix<DT>& M); //overloaded Ostream operator
 
 	void display(); //Display the sparse matrix in sparse row form
 	void displayMatrix(); //Display the matrix in its original form
 	int valFromRowCol(int r, int c); //returns the value at a specific row and column
+	int getNoRows();
+	int getNoCols();
 };
 
 //passes parameters to the SparseRow object myMatrix to create a sparseRow
@@ -161,8 +174,33 @@ SparseMatrix<DT>::SparseMatrix(int n, int m, int cv)
 	noRows = n;
 	noCols = m;
 	commonValue = cv;
-	//noNonSparseValues = noNSV;
-	//myMatrix = new SparseRow[noNSV];
+}
+
+//copy constructor
+template <class DT>
+SparseMatrix<DT>::SparseMatrix(const SparseMatrix &copy)
+{
+	noRows = copy.noRows;
+	noCols = copy.noCols;
+	commonValue = copy.commonValue;
+}
+
+//destructor class
+template <class DT>
+SparseMatrix<DT>::~SparseMatrix()
+{
+}
+
+template <class DT>
+int SparseMatrix<DT>::getNoRows()
+{
+	return noRows;
+}
+
+template <class DT>
+int SparseMatrix<DT>::getNoCols()
+{
+	return noCols;
 }
 
 //returns the value at a specific row and column
@@ -177,22 +215,17 @@ int SparseMatrix<DT>::valFromRowCol(int r, int c)
 		{
 			return myMatrix->at(i).getValue();
 		}
-		//returns 0 if not
-		else
-		{
-			return 0;
-		}
 	}
-	//returns zero regardless (breaks code if not here so I'm rolling with it)
-	return 0;
+	//returns the commonValue
+	return commonValue;
 
 }
 
 //operation multiply class
 template<class DT>
-SparseMatrix<DT> operator*(const SparseMatrix<DT>& S, const SparseMatrix<DT>& F)
+SparseMatrix<DT> operator*(const SparseMatrix<DT>& M)
 {
-	SparseMatrix<DT>* multTemp = new SparseMatrix<DT>();
+	SparseMatrix<DT>* multTemp = new SparseMatrix<DT>(M.noRows, M.getNoCols(), this->commonValue*M.commonValue);
 
 	/*try
 	{
@@ -203,14 +236,45 @@ SparseMatrix<DT> operator*(const SparseMatrix<DT>& S, const SparseMatrix<DT>& F)
 
 	}*/
 
-	return multTemp;
+	int pos = 0;
+	
+	for (int i = 0; i < multTemp->getNoRows(); ++i)
+	{
+		for (int j = 0; j < multTemp->getNoCols(); ++j)
+		{
+			int finVal = 0;
+			for (int k = 0; k < M.noRows; ++k)
+			{
+				if (M.myMatrix->at(k).getRow() == i)
+				{
+					for (int b = 0; b < M.noCols; ++b)
+					{
+						if (M.myMatrix->at(b).getCol() == j)
+						{
+							if (M.myMatrix->at(k).getCol() == M.myMatrix->at(b).getRow())
+							{
+								finVal += M.myMatrix->at(k).getValue() * M.myMatrix->at(b).getValue();
+							}
+						}
+					}
+				}
+			}
+
+			if (finVal != multTemp->commonValue)
+			{
+				multTemp->setSparseRow(pos, i, j, finVal);
+				pos++;
+			}
+		}		
+	}
+	return (*multTemp);
 }
 
 //operation add class
 template <class DT>
-SparseMatrix<DT> operator+(const SparseMatrix<DT>& S, const SparseMatrix<DT>& F)
+SparseMatrix<DT> operator+(const SparseMatrix<DT>& M)
 {
-	SparseMatrix<DT>* addTemp = new SparseMatrix<DT>();
+	SparseMatrix<DT>* addTemp = new SparseMatrix<DT>(this->getNoRows(), this->getNoCols(), this->commonValue+M.commonValue);
 
 	/*try
 	{
@@ -220,15 +284,47 @@ SparseMatrix<DT> operator+(const SparseMatrix<DT>& S, const SparseMatrix<DT>& F)
 	{
 
 	}*/
+
+	int pos = 0;
+
+	for (int i = 0; i < addTemp->getNoRows(); ++i)
+	{
+		for (int j = 0; j < addTemp->getNoCols(); ++j)
+		{
+			int sum = 0;
+			for (int k = 0; k < M.noRows; ++k)
+			{
+				if (M.myMatrix->at(k).getRow() == i)
+				{
+					for (int b = 0; b < M.noCols; ++b)
+					{
+						if (M.myMatrix->at(b).getCol() == j)
+						{
+							if (M.myMatrix->at(k).getCol() == M.myMatrix->at(b).getRow())
+							{
+								sum += M.myMatrix->at(k).getValue() + M.myMatrix->at(b).getValue();
+							}
+						}
+					}
+				}
+			}
+
+			if (sum != addTemp->commonValue)
+			{
+				addTemp->setSparseRow(pos, i, j, sum);
+				pos++;
+			}
+		}
+	}
 
 	return addTemp;
 }
 
 //operation transpose class
 template <class DT>
-SparseMatrix <DT> operator~(SparseMatrix<DT>& M)
+SparseMatrix <DT> operator~(const SparseMatrix<DT>& M)
 {
-	SparseMatrix<DT>* transposed = new SparseMatrix<DT>();
+	SparseMatrix<DT>* transposed = new SparseMatrix<DT>(this->noRows, this->noCols, this->commonValue);
 
 	/*try
 	{
@@ -241,26 +337,20 @@ SparseMatrix <DT> operator~(SparseMatrix<DT>& M)
 
 	for (int i = 0; i < M->size(); i++)
 	{
-		((*transposed).M.at(i)).setRow(M->at(i).getCol());
+		((*transposed).M->at(i)).setRow(M->at(i).getCol());
 		((*transposed).M->at(i)).setCol(M->at(i).getRow());
 		((*transposed).M->at(i)).setValue(M->at(i).getValue());
 	}
 
-	return transposed;
+	return (*transposed);
 }
 
 template <class DT>
-ostream& operator<<(ostream& os, SparseMatrix<DT>& M)
+ostream& operator<< (ostream& os, SparseMatrix<DT>& M)
 {
-	os << (*M).display();
+	os = (*M).display();
 
 	return os;
-}
-
-//destructor class
-template<class DT>
-SparseMatrix<DT>::~SparseMatrix()
-{
 }
 
 //displays the SparseMatrix object in sparse matrix format
@@ -268,7 +358,7 @@ template <class DT>
 void SparseMatrix<DT>::display()
 {
 	//iterating through the matrix and making sure all values are covered if the matrix is not square
-	for (int i = 0; i < noRows && i < noCols; i++)
+	for (int i = 0; i < noRows; i++)
 	{
 		//displays the matrix after getting the repsective (row, column, or value) value
 		myMatrix->at(i).displaySparse();
@@ -279,33 +369,17 @@ void SparseMatrix<DT>::display()
 template <class DT>
 void SparseMatrix<DT>::displayMatrix()
 {
-	//iterates through the number of rows and columns
-	for (int i = 0; i < noRows; ++i)
+	//iterates through the rows
+	for (int i = 0; i < noRows; i++)
 	{
-		for (int j = 0; j < noCols; ++j)
+		//interates through the columns
+		for (int j = 0; j < noCols; j++)
 		{
-			//checks to make sure the row number is equal for the respective index
-			//and makes sure the column value at the row index is equal to the row value is equal to the column index
-			if (myMatrix->at(i).getRow() == myMatrix->at(j).getRow() && myMatrix->at(i).getCol() == myMatrix->at(j).getRow())
-			{
-				//prints the value
-				cout << myMatrix->at(i).getValue();
-			}
-			//the exact opposite of the previous if statements, makes sure the column values are equal for the respective index
-			//and makes sure the row value at the column index is the same as the column value at the row index
-			else if (myMatrix->at(j).getCol() == myMatrix->at(i).getCol() && myMatrix->at(j).getRow() == myMatrix->at(i).getCol())
-			{
-				//prints the value
-				cout << myMatrix->at(i).getValue();
-			}
-			//returns the common value if none of the above conditions are met
-			else
-			{
-				cout << commonValue;
-			}			
-
+			//calls the method to return the value from a given row and column value in the matrix
+			cout << valFromRowCol(i, j) << " ";
 		}
-		//makes sure the line breaks at the appropriate place in the matrix
+
+		//printing a new line after each row to keep the proper format
 		cout << endl;
 	}
 
@@ -340,7 +414,7 @@ int main() {
 	}
 
 	cout << "First one in sparse matrix format" << endl;
-	//cout << firstOne;
+	//cout << (*firstOne);
 	(*firstOne).display();
 
 	cout << "First one in normal matrix format" << endl;
@@ -364,27 +438,27 @@ int main() {
 	}
 
 	cout << "Second one in sparse matrix format" << endl;
-	//cout << secondOne;
+	//cout << (*secondOne);
 	(*secondOne).display();
 
 	cout << "Second one in normal matrix format" << endl;
 	(*secondOne).displayMatrix();
 
-	//temp = ~(firstOne); //swear this thing hates me
-	//cout << "After Transpose first one in normal format" << endl;
-	//(*temp).displayMatrix();
+	(*temp) = ~(*firstOne); //swear this thing hates me
+	cout << "After Transpose first one in normal format" << endl;
+	(*temp).displayMatrix();
 
-	//temp = ~secondOne;
-	//cout << "After Transpose second one in normal format" << endl;
-	//(*temp).displayMatrix();
+	(*temp) = ~(*secondOne);
+	cout << "After Transpose second one in normal format" << endl;
+	(*temp).displayMatrix();
 
-	//cout << "Multiplication of matrices in sparse matrix form:" << endl;
-	//temp = secondOne*firstOne;
-	//cout << temp;
+	cout << "Multiplication of matrices in sparse matrix form:" << endl;
+	temp = (*secondOne)*(*firstOne);
+	cout << (*temp);
 
-	//cout << "Addition of matrices in sparse matrix form:" << endl;
-	//temp = secondOne+firstOne;
-	//cout << temp;
+	cout << "Addition of matrices in sparse matrix form:" << endl;
+	temp = (*secondOne)+(*firstOne);
+	cout << (*temp);
 
 	return 1;
 };
