@@ -467,11 +467,11 @@ int main()
 	(*temp).displayMatrix();
 
 	cout << "Multiplication of matrices in sparse matrix form:" << endl;
-	temp = (*secondOne) * (*firstOne);
+	temp = (*secondOne)*(*firstOne);
 	cout << (*temp);
 
 	cout << "Addition of matrices in sparse matrix form:" << endl;
-	temp = (*secondOne) + (*firstOne);
+	temp = (*secondOne)+(*firstOne);
 	cout << (*temp);
 
 	return 1;
