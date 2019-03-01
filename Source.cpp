@@ -1,7 +1,7 @@
 //============================================================================
 // Name			: Source.cpp
 // Author		: Quinn Brum
-// Version		: February 25, 2019
+// Version		: February 28, 2019
 // Descpription	: Project 2 in C++
 //============================================================================
 
@@ -428,8 +428,8 @@ int main()
 	}
 
 	cout << "First one in sparse matrix format" << endl;
-	//cout << (*firstOne);
-	(*firstOne).display();
+	cout << (*firstOne);
+	//(*firstOne).display();
 
 	cout << "First one in normal matrix format" << endl;
 	(*firstOne).displayMatrix();
@@ -452,8 +452,8 @@ int main()
 	}
 
 	cout << "Second one in sparse matrix format" << endl;
-	//cout << (*secondOne);
-	(*secondOne).display();
+	cout << (*secondOne);
+	//(*secondOne).display();
 
 	cout << "Second one in normal matrix format" << endl;
 	(*secondOne).displayMatrix();
@@ -466,13 +466,13 @@ int main()
 	cout << "After Transpose second one in normal format" << endl;
 	(*temp).displayMatrix();
 
-	/*cout << "Multiplication of matrices in sparse matrix form:" << endl;
+	cout << "Multiplication of matrices in sparse matrix form:" << endl;
 	temp = (*secondOne) * (*firstOne);
 	cout << (*temp);
 
 	cout << "Addition of matrices in sparse matrix form:" << endl;
 	temp = (*secondOne) + (*firstOne);
-	cout << (*temp);*/
+	cout << (*temp);
 
 	return 1;
 };
